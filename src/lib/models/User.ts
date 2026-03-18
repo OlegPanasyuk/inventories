@@ -15,6 +15,7 @@ export class User extends Model<
   declare firstName: string;
   declare lastName: string;
   declare email: string;
+  declare passwordHash: CreationOptional<string | null>;
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }
@@ -42,6 +43,10 @@ export function initUserModel(sequelize: Sequelize) {
         validate: {
           isEmail: true,
         },
+      },
+      passwordHash: {
+        type: DataTypes.STRING,
+        allowNull: true,
       },
       createdAt: {
         type: DataTypes.DATE,

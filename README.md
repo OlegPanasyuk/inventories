@@ -1,51 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Inventories
 
-## Getting Started
+Next.js App Router project with PostgreSQL, Sequelize migrations, and a guide-aligned authentication flow based on the official Next.js authentication guide:
+https://nextjs.org/docs/app/guides/authentication
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js App Router
+- PostgreSQL
+- Sequelize
+- Sequelize CLI migrations and seeders
+- Server Actions
+- Encrypted HTTP-only cookie sessions
+
+## Environment
+
+Configure `.env`:
+
+```env
+SOFTWARE_VERSION_TAG=latest
+SOFTWARE_PASSWORD=root
+ADMIN_EMAIL=admin@email.com
+ADMIN_PASSWORD=root
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_NAME=postgres
+DB_USER=postgres
+DB_PASSWORD=root
+SESSION_SECRET=change-this-to-a-long-random-secret
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`SESSION_SECRET` is required for signing and decrypting session cookies.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Start PostgreSQL and pgAdmin:
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-
-## DataBase
-
-how to run
 ```bash
 docker compose up -d
 ```
-pgadmin 127.0.0.1:8080
 
-.env
-SOFTWARE_VERSION_TAG=latest
-SOFTWARE_PASSWORD={{POSTGRESS_PASSWORD}}
-ADMIN_EMAIL={{ADMIN_EMAIL}}
-ADMIN_PASSWORD={{PG_ADMIN_PASSWORD}}
+pgAdmin is available at `http://127.0.0.1:8080`.
+
+Run migrations:
+
+```bash
+pnpm db:migrate
+```
+
+Seed the demo user:
+
+```bash
+pnpm db:seed:all
+```
+
+## Authentication Flow
+
+Implemented pieces:
+
+- Sign up with server-side validation and password hashing
+- Sign in with password verification
+- Encrypted HTTP-only session cookie
+- Proxy-based optimistic route protection for `/dashboard`
+- DAL verification before loading protected user data
+- Sign out via server action
+
+Routes:
+
+- `/`
+- `/login`
+- `/signup`
+- `/dashboard`
+
+## Demo Account
+
+After running the seeder, use:
+
+- Email: `example@example.com`
+- Password: `demo12345`
+
+## Development
+
+```bash
+pnpm dev
+```
+
+## Verification
+
+```bash
+pnpm lint
+pnpm exec tsc --noEmit
+```

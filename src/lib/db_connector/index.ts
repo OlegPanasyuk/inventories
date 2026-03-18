@@ -41,9 +41,6 @@ function createSequelizeInstance() {
     host: config.host,
     port: config.port,
     logging: config.logging,
-    sync: {
-      alter: true,
-    }
   });
 }
 
@@ -59,10 +56,12 @@ if (!sequelize.models.User) {
 }
 
 export async function verifyDatabaseConnection() {
+  const config = getDatabaseConfig();
+
   await sequelize.authenticate();
   return {
-    database: sequelize.getDatabaseName(),
-    host: sequelize.options.host,
-    port: sequelize.options.port,
+    database: config.database,
+    host: config.host,
+    port: config.port,
   };
 }
