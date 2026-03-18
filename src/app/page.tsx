@@ -1,9 +1,25 @@
 import Image from "next/image";
+import { verifyDatabaseConnection } from "@/lib/db_connector";
 
-export default function Home() {
+export const runtime = "nodejs";
+
+export default async function Home() {
+  let connectionStatus = "Connected";
+  let connectionDetails = "";
+
+  try {
+    const connection = await verifyDatabaseConnection();
+    connectionDetails = `${connection.host}:${connection.port} / ${connection.database}`;
+  } catch (error) {
+    connectionStatus = "Connection failed";
+    connectionDetails =
+      error instanceof Error ? error.message : "Unknown database error";
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+        <h1>Initial Page</h1>
         <Image
           className="dark:invert"
           src="/next.svg"
