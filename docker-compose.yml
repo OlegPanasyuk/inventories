@@ -1,0 +1,27 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:${SOFTWARE_VERSION_TAG}
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${SOFTWARE_PASSWORD}
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  pgadmin4:
+    image: elestio/pgadmin:${SOFTWARE_VERSION_TAG}
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${ADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${ADMIN_PASSWORD}
+      PGADMIN_LISTEN_PORT: 8080
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json
