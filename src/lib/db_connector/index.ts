@@ -1,31 +1,49 @@
 import "server-only";
 import { Sequelize } from "sequelize";
+import databaseConfigs from "../../../config/database.cjs";
+import { initUserModel } from "@/lib/models/User";
 
-const DEFAULT_DB_PORT = 5432;
+type DatabaseEnvironment = "development" | "test" | "production";
+type DatabaseConfig = {
+  username: string;
+  password: string;
+  database: string;
+  host: string;
+  port: number;
+  dialect: "postgres";
+  logging: boolean;
+};
+
+type DatabaseConfigMap = Record<DatabaseEnvironment, DatabaseConfig>;
+
+const resolvedEnvironment: DatabaseEnvironment =
+  process.env.NODE_ENV === "production"
+    ? "production"
+    : process.env.NODE_ENV === "test"
+      ? "test"
+      : "development";
+
+const dbConfigs = databaseConfigs as DatabaseConfigMap;
 
 declare global {
-  // Reuse the same Sequelize instance during hot reload in development.
   var __sequelize__: Sequelize | undefined;
 }
 
 function getDatabaseConfig() {
-  return {
-    database: process.env.DB_NAME ?? "postgres",
-    username: process.env.DB_USER ?? "postgres",
-    password: process.env.DB_PASSWORD ?? process.env.SOFTWARE_PASSWORD ?? "root",
-    host: process.env.DB_HOST ?? "127.0.0.1",
-    port: Number(process.env.DB_PORT ?? DEFAULT_DB_PORT),
-  };
+  return dbConfigs[resolvedEnvironment];
 }
 
 function createSequelizeInstance() {
   const config = getDatabaseConfig();
 
   return new Sequelize(config.database, config.username, config.password, {
-    dialect: "postgres",
+    dialect: config.dialect,
     host: config.host,
     port: config.port,
-    logging: false,
+    logging: config.logging,
+    sync: {
+      alter: true,
+    }
   });
 }
 
@@ -34,6 +52,10 @@ export const sequelize =
 
 if (process.env.NODE_ENV !== "production") {
   globalThis.__sequelize__ = sequelize;
+}
+
+if (!sequelize.models.User) {
+  initUserModel(sequelize);
 }
 
 export async function verifyDatabaseConnection() {
